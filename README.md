@@ -77,14 +77,12 @@ DMD utilizes SVD to solve for a linear operator $A$ which is a solution to  $X' 
 
 $$
 X' = AX \\
-
 X = 
 \begin{bmatrix} 
 | & | & | & | \\ 
 x_{t=1} & x_2 & \dots & x_{n-1} \\ 
 | & | & | & |  
 \end{bmatrix},\ 
-
 X'=
 \begin{bmatrix} 
 | & | & | & | \\ 
@@ -186,10 +184,12 @@ The eigenvalues shown on the standard complex plane show one dominant scaling va
 <b>Eigenvalues of A (left) and Singular Values (right)</b> <br>
 <img src="./pred prey dmd delay evals complex.jpg" alt="pred prey dmd delay evals complex" style="zoom: 40%;" /><img src="./pred prey dmd delay S.jpg" alt="pred prey dmd delay S" style="zoom: 40%;" />
 </center>    
+
 Whereas the singular values, below, indicate a rank 4 or 6 lower dimensional model might capture most of the modes. At rank 6 the model indeed fits the dynamics but the magnitudes are off, and the the RMSE increases by about 22%. 
 
 <center>
-    <img src="./pred prey dmd delay rank reduced 6.jpg" alt="pred prey dmd delay rank reduced 6" style="zoom: 40%;" /> <img src="./pred prey optdmd delay.jpg" alt="pred prey optdmd delay" style="zoom: 40%;" /></center>
+    <img src="./pred prey dmd delay rank reduced 6.jpg" alt="pred prey dmd delay rank reduced 6" style="zoom: 40%;" /> <img src="./pred prey optdmd delay.jpg" alt="pred prey optdmd delay" style="zoom: 40%;" />
+</center>
 
 So far the model is my own non-optimal formulation, which is how I can see the singular values and not just the final eigenvectors and values. Using the OptDMD package we get a much better lower Root Mean Squared Error (RMSE) and visually better fit model, only diverging somewhat near the end for both features. This is a common problem that I don't quite understand, but feels like a boundary condition problem, however when I step the solution out past 1903 by ten years, there is only a moderate change in the divergent behavior around 1900.
 
@@ -220,7 +220,8 @@ It should be noted however that this is a very low dimensional space, with only 
 With code built up from Prof Brunton examples in the `sparsedynamics` GitHub repository, I wasn't able to get better RMSE than the Lotka-Voltera equations or DMD. Bagging and Hankel delay did help a certain amount. I dont really understand why a basic SINDy implementation wouldn't find the coefficients for Lotka-Volterra or even do better, so there may be a coding error on my part. The left plot is with the $\Theta$ library set to maximum order 2, and $\lambda$ threshold at 0.005. 
 
 <center>
-<img src="./pred prey sindy delay.jpg" alt="pred prey sindy" style="zoom:40%;" /><img src="pred prey sindy LV.jpg" alt="pred prey sindy LV" style="zoom: 40%;" /></center>
+<img src="./pred prey sindy delay.jpg" alt="pred prey sindy" style="zoom:40%;" /><img src="pred prey sindy LV.jpg" alt="pred prey sindy LV" style="zoom: 40%;" />
+</center>
 
 However I used the same code on data generated from the Lotka-Volterra model and the results are excellent. The $\xi$ coefficients match to within a few percent and visually the plots are quite accurate (ignore the vertical scale on the right-hand plot, which also makes the RMSE look larger than it really is). I thought maybe the data was too noisy and cleaned it up with a moving average, but this only helped marginally. 
 
