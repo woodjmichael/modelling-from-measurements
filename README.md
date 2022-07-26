@@ -142,8 +142,6 @@ $$
 
 The result is that not only can we find the dominant physics but we will know the governing equations because we defined them at the outset. Note that the SINDy libraries want $X$ with time progressing along the vertical rather than horizontal matrix dimension.
 
-
-
 # A. Predator-Prey
 
 Lynx and Snowshoe Hare pelt data is available from 1845 to 1903, skipping every even year. The hare notably leads the lynx, although not always and not always by a fixed interval. With only 30 data points per feature, this is decidedly a low data problem, and also a somewhat noisy one. In the image titles I will differentiate between manually computed DMD and using the library OptDMD.
@@ -154,7 +152,7 @@ Lynx and Snowshoe Hare pelt data is available from 1845 to 1903, skipping every 
 
 First I built a simple non-delay DMD model using only `svd()`  and `\` to solve for $b$ , but the results were so poor that I couldn't verify the model was working as intended. With `optdmd` I could be more sure that the completely unfit arcs were not a mistake, but rather the result of not having the Hankel matrix "shift rows." Without this the $A$ matrix must infer all the dynamic behavior from only $X$ and $X'$ which might be possible with datasets of much higher spatial dimension. However with only two features, or two spatial dimensions, it's clearly not.
 
-<img src="./pred prey optdmd.jpg" alt="pred prey optdmd" style="zoom: 50%;" />
+<img src="./images/pred prey optdmd.jpg" alt="pred prey optdmd" style="zoom: 50%;" />
 
 Furthermore with only two spatial modes and two eigenvalues, there simply isn't enough complexity in the model to reproduce the patterns in the data, such as a two parameters linear model $y=mx+b$ is unable to accurately model changes in solar irradiation. 
 
@@ -162,7 +160,7 @@ Furthermore with only two spatial modes and two eigenvalues, there simply isn't 
 
 Bagging wasn't very successful either, and often failed dramatically such as below. The best bag size (dimensionality of the boosted subset) was always equal to or just smaller than the full dataset dimension $n$. This just means that the model needed the full timeseries to even model the moving average (roughly what looks to be the case in the image above). It could be that simply averaging $ \Phi, \Lambda,$ and $b_0$ across the ensemble isn't appropriate. 
 
-<img src="./pred prey optdmd bag.jpg" alt="pred prey optdmd bag" style="zoom: 50%;" />
+<img src="./images/pred prey optdmd bag.jpg" alt="pred prey optdmd bag" style="zoom: 50%;" />
 
 ## 2. Time-delay DMD
 
@@ -171,8 +169,8 @@ Bagging wasn't very successful either, and often failed dramatically such as bel
 With the Hankel matrix juxtaposing the time dynamics on consecutive rows (every other row actually) the results are much better, with both the dynamics and magnitudes reasonably well represented. I performed a quick grid search to find the best shape of the Hankel matrix, which is 15 shifted *pairs* of rows - one for each feature. In all these models I keep the rank as large as possible to avoid losing any information. 
 
 <center><b>DMD Delay (left) and Spatial Modes (right)</b><br>
-<img src="./pred prey dmd delay.jpg" alt="pred prey dmd delay" style="zoom: 40%;" />
-<img src="./pred prey dmd delay phi cols.jpg" alt="pred prey dmd delay phi cols" style="zoom: 40%;" />
+<img src="./images/pred prey dmd delay.jpg" alt="pred prey dmd delay" style="zoom: 40%;" />
+<img src="./images/pred prey dmd delay phi cols.jpg" alt="pred prey dmd delay phi cols" style="zoom: 40%;" />
 </center>
 
 
@@ -182,14 +180,12 @@ The eigenvalues shown on the standard complex plane show one dominant scaling va
 
 <center>
 <b>Eigenvalues of A (left) and Singular Values (right)</b> <br>
-<img src="./pred prey dmd delay evals complex.jpg" alt="pred prey dmd delay evals complex" style="zoom: 40%;" /><img src="./pred prey dmd delay S.jpg" alt="pred prey dmd delay S" style="zoom: 40%;" />
+<img src="./images/pred prey dmd delay evals complex.jpg" alt="pred prey dmd delay evals complex" style="zoom: 40%;" /><img src="./images/pred prey dmd delay S.jpg" alt="pred prey dmd delay S" style="zoom: 40%;" />
 </center>    
-
 Whereas the singular values, below, indicate a rank 4 or 6 lower dimensional model might capture most of the modes. At rank 6 the model indeed fits the dynamics but the magnitudes are off, and the the RMSE increases by about 22%. 
 
 <center>
-    <img src="./pred prey dmd delay rank reduced 6.jpg" alt="pred prey dmd delay rank reduced 6" style="zoom: 40%;" /> <img src="./pred prey optdmd delay.jpg" alt="pred prey optdmd delay" style="zoom: 40%;" />
-</center>
+    <img src="./images/pred prey dmd delay rank reduced 6.jpg" alt="pred prey dmd delay rank reduced 6" style="zoom: 40%;" /> <img src="./images/pred prey optdmd delay.jpg" alt="pred prey optdmd delay" style="zoom: 40%;" /></center>
 
 So far the model is my own non-optimal formulation, which is how I can see the singular values and not just the final eigenvectors and values. Using the OptDMD package we get a much better lower Root Mean Squared Error (RMSE) and visually better fit model, only diverging somewhat near the end for both features. This is a common problem that I don't quite understand, but feels like a boundary condition problem, however when I step the solution out past 1903 by ten years, there is only a moderate change in the divergent behavior around 1900.
 
@@ -220,8 +216,8 @@ It should be noted however that this is a very low dimensional space, with only 
 With code built up from Prof Brunton examples in the `sparsedynamics` GitHub repository, I wasn't able to get better RMSE than the Lotka-Voltera equations or DMD. Bagging and Hankel delay did help a certain amount. I dont really understand why a basic SINDy implementation wouldn't find the coefficients for Lotka-Volterra or even do better, so there may be a coding error on my part. The left plot is with the $\Theta$ library set to maximum order 2, and $\lambda$ threshold at 0.005. 
 
 <center>
-<img src="./pred prey sindy delay.jpg" alt="pred prey sindy" style="zoom:40%;" /><img src="pred prey sindy LV.jpg" alt="pred prey sindy LV" style="zoom: 40%;" />
-</center>
+<img src="./images/pred prey sindy delay.jpg" alt="pred prey sindy" style="zoom:40%;" /><img src="./images/pred prey sindy LV.jpg" alt="pred prey sindy LV" style="zoom: 40%;" /></center>
+
 
 However I used the same code on data generated from the Lotka-Volterra model and the results are excellent. The $\xi$ coefficients match to within a few percent and visually the plots are quite accurate (ignore the vertical scale on the right-hand plot, which also makes the RMSE look larger than it really is). I thought maybe the data was too noisy and cleaned it up with a moving average, but this only helped marginally. 
 
@@ -235,7 +231,7 @@ Training stops automatically after 1285 epochs because the validation loss has n
 
 <center>
 <b>NN Train Data MSE (left) and Test Data MSE (right)</b> <br>
- <img src="nn ks train loss.png" alt="nn ks train loss" style="zoom:70%;"  /> <img src="nn ks valid loss.png" alt="nn ks valid loss" style="zoom:70%;" />
+ <img src="./images/nn ks train loss.png" alt="nn ks train loss" style="zoom:70%;"  /> <img src="./images/nn ks valid loss.png" alt="nn ks valid loss" style="zoom:70%;" />
 </center>
 
 
@@ -245,8 +241,9 @@ The Ordinary Differential Equation (ODE) time stepper solution (left below) visu
 
 <center>
 <b>ODE Time Stepping Solution (left) and NN Training (right)</b> <br>
- <img src="nn ks ode.png" style="zoom:80%;"   /> <img src="nn ks train.png" style="zoom:80%;" />
+ <img src="./images/nn ks ode.png" style="zoom:80%;"   /> <img src="./images/nn ks train.png" style="zoom:80%;" />
 </center>
+
 ## 3. SVD Forecast
 
 ### KS
@@ -255,7 +252,7 @@ The SVD forecast interestingly does a much better job of capturing both the mode
 
 <center>
 <b>SVD Forecast for r=100 (left) and r=10 (right)</b> <br>
- <img src="nn ks svd.png" style="zoom:80%;"   /> <img src="nn ks svd r10.png" style="zoom:80%;" />
+ <img src="./images/nn ks svd.png" style="zoom:80%;"   /> <img src="./images/nn ks svd r10.png" style="zoom:80%;" />
 </center>
 
 
@@ -264,15 +261,15 @@ The SVD forecast interestingly does a much better job of capturing both the mode
 A reaction-diffusion example is run from a provided MATLAB script and the results are shown below for the last image, both variables are displayed below at the final time instance of the simulation.
 
 <center><b>Reaction-Diffusion Final Time Instance for u (left) and v (right)</b><br>
-<img src="rd u(end) r10.jpg" alt="rd u(end) r10" style="zoom:33%;" />
-<img src="rd v(end).jpg" alt="rd v(end)" style="zoom:33%;" />
+<img src="./images/rd u(end) r10.jpg" alt="rd u(end) r10" style="zoom:33%;" />
+<img src="./images/rd v(end).jpg" alt="rd v(end)" style="zoom:33%;" />
 </center>
 
 SVD then transforms $u$ and $v$ data into a rank=10 subspace, where the spatial modes of the $U$ matrix and singular values of $S$ can be used in a regression for future timesteps of the simulation. SVD appears to be excellent at extracting features which correlate very well with the true data. 
 
 <center><b>Reaction-Diffusion Final Time Instance for Rank=10 Estimated u (left) and v (right)</b><br>
-<img src="rd u(end) r10.jpg" alt="rd u(end) r10" style="zoom:33%;" />
-<img src="rd v(end).jpg" alt="rd v(end)" style="zoom:33%;" />
+<img src="./images/rd u(end) r10.jpg" alt="rd u(end) r10" style="zoom:33%;" />
+<img src="./images/rd v(end).jpg" alt="rd v(end)" style="zoom:33%;" />
 </center>
 
 # C. Lorenz Equations
@@ -289,11 +286,10 @@ Below are three example trajectories for the Lorenz systems used in training the
 
 <center>
 <b>ODE45 vs NN Predictions for r=10 (left), r=28 (middle), r=35 (right)</b><br>
-<img src="lnz nn r10.jpg" alt="lnz nn r10" style="zoom:33%;" />
-<img src="lnz nn r28.jpg" alt="lnz nn r28" style="zoom:33%;" />
-<img src="lnz nn r35.jpg" alt="lnz nn r35" style="zoom:33%;" />
+<img src="./images/lnz nn r10.jpg" alt="lnz nn r10" style="zoom:33%;" />
+<img src="./images/lnz nn r28.jpg" alt="lnz nn r28" style="zoom:33%;" />
+<img src="./images/lnz nn r35.jpg" alt="lnz nn r35" style="zoom:33%;" />
 </center>
-
 
 
 ## Test Set $\rho=17, R40$
@@ -303,8 +299,8 @@ Then the NN is given a new initial condition $[x_0, y_0, z_0, \rho_k]$ for $\rho
 <center>
 <b>ODE vs NN Predictions for r=17 (left) r=40 (right)</b>
 <br>
-<img src="lnz nn r17.jpg" alt="lnz nn r17" style="zoom:33%;" />
-<img src="lnz nn r40.jpg" alt="lnz nn r40" style="zoom:33%;" />
+<img src="./images/lnz nn r17.jpg" alt="lnz nn r17" style="zoom:33%;" />
+<img src="./images/lnz nn r40.jpg" alt="lnz nn r40" style="zoom:33%;" />
 </center>
 
 The Lorenz equations are notable for causing dramatically different outputs for small changes in the parameters. Therefore a reasonable conclusion is that the NN is able to learn the $\rho=17$ system because it is similar enough to the training systems of $\rho=10,28,35$ but the $\rho=40$ system is different enough and the NN is unable to generalize. 
