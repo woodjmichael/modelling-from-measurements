@@ -42,7 +42,6 @@ U = \begin{bmatrix}
 		u_1 & u_2 & \dots & u_n \\
 		\mid & \mid & & \mid 
 	\end{bmatrix} ,\
-
 S = \begin{bmatrix}
 		s_1 & 0 & & \mid \\
 		0 & s_2 & \dots & 0  \\
@@ -50,13 +49,11 @@ S = \begin{bmatrix}
 		\mid & \mid & & 0 \\
 		\mid & \mid & & \mid \\
 	\end{bmatrix} ,\
-
 V = \begin{bmatrix}
 		\mid & \mid & & \mid \\
 		v_1 & v_2 & \dots & v_m \\
 		\mid & \mid & & \mid 
 	\end{bmatrix} ,\
-	
 V^T = \begin{bmatrix} v_1^T \dots \\ v_2^T \dots \\ v_m^T \dots  \end{bmatrix}
 $$
 
