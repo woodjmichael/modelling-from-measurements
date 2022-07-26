@@ -33,6 +33,7 @@ $$
 UU^T = U^T U = I\\
 VV^T = V^T V = I
 $$
+
 Matrices $U$ and $V$ are unitary, so when multiplied by their transverses, the result is the identity matrix. Sometimes $U$ is called the left singular vectors and $V$ the right singular vectors. $U$ and $V$ also have physical meaning, for instance the rows of each can be thought of as so-called eigen faces or eigen flow fields.
 $$
 U = \begin{bmatrix}
