@@ -35,6 +35,7 @@ VV^T = V^T V = I
 $$
 
 Matrices $U$ and $V$ are unitary, so when multiplied by their transverses, the result is the identity matrix. Sometimes $U$ is called the left singular vectors and $V$ the right singular vectors. $U$ and $V$ also have physical meaning, for instance the rows of each can be thought of as so-called eigen faces or eigen flow fields.
+
 $$
 U = \begin{bmatrix}
 		\mid & \mid & & \mid \\
@@ -60,10 +61,12 @@ V^T = \begin{bmatrix} v_1^T \dots \\ v_2^T \dots \\ v_m^T \dots  \end{bmatrix}
 $$
 
 Often the data matrix $X$ is taller than it is wide, so $m>n$ . We only expect $n$ singular values because $U$ and $V$ are at most rank $n$. So $S$ is merely a $n \times n$ diagonal matrix, except that for the matrix math to work $S$ needs to be padded with zeros below the square, diagonal singular values. However multiplying these values through does not effect $X$. Therefore an *economy* version of SVD is often computed, based on the Eckard-Young theorem.
+
 $$
 Econ:\ \hat X_{m \times n} = \hat U_{m\times n} \hat S_{n \times n} V^T_{n \times n} \\
 Rank\ r:\ \tilde X_{m \times n} = \tilde U_{m\times r} \tilde S_{r \times r} \tilde V^T_{n \times r}
 $$
+
 A reduced rank $r$ version of the three matrices is often used. Because $S$-values decrease in magnitude, and $U$ and $V$ vectors coincide appropriately, the matrices can be reduced to the appropriate lower dimensional rank to represent the data. Each successive set of vectors and singular value better approximate the data. This way SVD can be written as:
 
 The program calls for SVD are simple. Note that Python returns a vector $s$ not a diagonal matrix $S$, and $V^T$ not $V$.
@@ -74,6 +77,7 @@ The program calls for SVD are simple. Note that Python returns a vector $s$ not 
 ## DMD
 
 DMD utilizes SVD to solve for a linear operator $A$ which is a solution to  $X' = AX$, where $X'$ is the $X$ matrix shifted forward one time step and with the same dimensions (so some data is lost). Again $X$ is typically formulated such that rows are $m$ points in space and columns are $n$ samples in time, and often for dynamical systems $m>n$. 
+
 $$
 X' = AX \\
 
@@ -93,6 +97,7 @@ x_{t=2} & x_3 & \dots & x_{n} \\
 $$
 
 We won't compute $A$ exactly because it can be very large and matrix inversions are costly, but we'll compute a lower dimensional version using SVD and call it $\tilde A$. Then $\tilde A$ can be understood as a best fit model for the dominant modes in $X$, and can also be reduced further as needed.
+
 $$
 X = USV^T  \\
 X' = AUSV^T \\
@@ -100,12 +105,14 @@ U^{-1}X'VS^{-1} = \tilde A
 $$
 
 On its own $\tilde A$ isn't useful, and notably has the wrong dimensions. But the eigen values of $\tilde A$ are the same as $A$, and with those we can conveniently compute the eigenvectors of $A$, which we call $\Phi$. Physically, $\Phi$ represents the spatial modes and the eigenvalues in $\Lambda$ control the dynamics, such as growth or decay and oscillations.
+
 $$
 \tilde A W = W \Lambda \\
 \Phi = X'VS^{-1}W \\
 $$
 
 With $\Phi$ calculated it's possible to begin from initial conditions $b_0$ and step the spatial modes forward in time. While this wasn't the initial intention of DMD, with some modifications is capable of regression.
+
 $$
 \hat X(k\Delta t) = \Phi \Lambda^t b_0
 $$
@@ -122,6 +129,7 @@ Xhat = w*diag(b)*exp(e1*t); # moded, initial conditions, and dynamics
 With SINDy we solve a relatively simple linear algebra problem, but with an emphasis on sparsity in the solution. This is because we don't want to the best linear combination of all features, we want to know which are the few or several most important features. 
 
 First a library of candidate functions is built, named $\Theta$ . Since the candidate functions are dependent only on the features (data) we already have, their values can be calculated directly. For data with two features $x$ and $y$ with $n$ samples in time, the library up to order 2 looks like the following.
+
 $$
 \Theta = 
 \begin{bmatrix}
@@ -130,10 +138,13 @@ $$
 1 & x_{n} & y_{n} & x^2_{n} & y^2_{n} & x_ny_{n} \\
 \end{bmatrix}_{n \times k}
 $$
+
 Next the following system of equations is solved for $\xi$ with emphasis on sparsity. This could be achieved using the L0 norm, or by defining a threshold $\lambda$ below which we won't consider values of $\xi$. 
+
 $$
 X_{n \times m} = \Theta_{n \times k} \ \xi_{k \times n}
 $$
+
 The result is that not only can we find the dominant physics but we will know the governing equations because we defined them at the outset. Note that the SINDy libraries want $X$ with time progressing along the vertical rather than horizontal matrix dimension.
 
 
