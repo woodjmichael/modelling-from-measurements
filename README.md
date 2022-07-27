@@ -30,7 +30,7 @@ SVD is a data reduction technique, representing data $X$ with orthogonal bases $
 To solve problems regarding dynamic systems, typically a 2D data matrix $X$ is formulated where each row is a different spatial position, and each column is the evolution of the measurements over time. If the spatial data is 2D then it is first flattened to a single column vector, such as images. 
 
 $$
-UU^T = U^T U = I\\
+UU^T = U^T U = I \\
 VV^T = V^T V = I
 $$
 
