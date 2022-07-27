@@ -20,7 +20,7 @@ There's a lot of libraries on GitHub to implement Dynamic Mode Decomposition (DM
 
 ## Singular Value Decomposition (SVD)
 
-$X = USV^T$
+$X = USV^T$ <br>
 $X_{m \times n} = U_{m\times m}S_{m \times n} V^T_{n \times n}$
 
 SVD is a data reduction technique, representing data $X$ with orthogonal bases $U$ and $V$, and a diagonal matrix of *singular values*. It is analogous to FFT, which is another powerful tool for mapping problems into a new space where it becomes more simple. SVD can be tailored to a specific problem, such as solving $Ax=b$ where $A$ isn't square, and can be used as a basis for PCA. 
